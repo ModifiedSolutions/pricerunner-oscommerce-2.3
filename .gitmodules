@@ -1,0 +1,3 @@
+[submodule "admin/ext/modules/pricerunner/pricerunner-php-sdk"]
+	path = admin/ext/modules/pricerunner/pricerunner-php-sdk
+	url = https://ModifiedSolutions@github.com/ModifiedSolutions/pricerunner-php-sdk.git
