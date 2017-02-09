@@ -76,23 +76,23 @@ class PricerunnerController
         $store  = STORE_NAME;
         $phone  = $_POST['phone'];
         $email  = $_POST['email'];
-        $domain = ENABLE_SSL_CATALOG ? HTTPS_CATALOG_SERVER : HTTP_CATALOG_SERVER;
+        $domain = ENABLE_SSL_CATALOG == 'true' ? HTTPS_CATALOG_SERVER : HTTP_CATALOG_SERVER;
         $url    = $domain . DIR_WS_ADMIN .'pricerunner_feed.php?hash='. $this->config['pricerunner_feed_hash'];
 
         $response = $this->model->activatePlugin($store, $phone, $email, $domain, $url);
         if (empty($response)) {
 
             $this->config = $this->prepareConfigurations();
-            return [
+            return array(
                 'message' => "Plugin has been successfully activated",
                 'valid'   => true
-            ];
+            );
         } else {
 
-            return [
+            return array(
                 'message' => "Plugin wasn't successfully activated (Error: " . $response->getMessage() . ")",
                 'valid'   => false
-            ];
+            );
         }
     }
 
@@ -106,10 +106,10 @@ class PricerunnerController
         $this->model->resetPlugin();
         $this->config = $this->prepareConfigurations();
 
-        return [
+        return array(
             'message' => "Plugin has been successfully reset",
             'valid'   => true
-        ];
+        );
     }
 
 
@@ -165,7 +165,7 @@ class PricerunnerController
             $configResults = $this->model->getConfigurations();
         }
 
-        $config = [];
+        $config = array();
         while ($row = tep_db_fetch_array($configResults)) {
             $key = $row['configuration_key'];
             $config["$key"] = $row['configuration_value'];
@@ -182,30 +182,30 @@ class PricerunnerController
     private function validateRegistrationData()
     {
         if (!isset($_POST['phone']) || !isset($_POST['email'])) {
-            return [
+            return array(
                 'message' => "Plugin wasn't successfully activated (Error: Form data not found )",
                 'valid'   => false
-            ];
+            );
         }
 
         if (strlen(preg_replace("/[^\d]/", '', $_POST['phone'])) < 8) {
-            return [
+            return array(
                 'message' => "Plugin wasn't successfully activated (Error: Phone number contains less than 8 digits )",
                 'valid'   => false
-            ];
+            );
         }
 
         if ($this->config['pricerunner_feed_activated']) {
-            return [
+            return array(
                 'message' => "Plugin wasn't successfully activated (Error: Plugin is already activated )",
                 'valid'   => false
-            ];
+            );
         }
 
-        return [
+        return array(
             'message' => "",
             'valid'   => true
-        ];
+        );
     }
 
 
@@ -219,7 +219,7 @@ class PricerunnerController
         $shippingConfig = $this->model->getShippingConfig();
         $categoryConfig = $this->model->getCategoriesConfig();
 
-        $instantiatedArray = [];
+        $instantiatedArray = array();
         while($productValues = tep_db_fetch_array($products)) {
             $instantiatedArray[] = $this->serializeSingleProduct(new Product(), $productValues, $categoryConfig, $shippingConfig);
         }
@@ -244,8 +244,10 @@ class PricerunnerController
 
         if ($productValues['tax_rate'] > 0) {
             $taxRate = (floatval($productValues['tax_rate']) / 100) + 1;
-            $productValues['real_price'] = $productValues['real_price'] * $taxRate;
+            $productValues['real_price'] = round($productValues['real_price'] * $taxRate, 2);
         }
+
+        $productValues['real_price'] = sprintf("%.2F", $productValues['real_price']);
 
         $product->setPrice($productValues['real_price']);
 
@@ -254,12 +256,15 @@ class PricerunnerController
             $product->setShippingCost($shipping['MODULE_SHIPPING_FLAT_COST']);
         }
 
-        $product->setProductUrl(HTTP_SERVER . DIR_WS_CATALOG . "product_info.php" . '?products_id=' . $productValues["products_id"]);
+        // Constants defined in /catalog/includes/configure.php NOT in /catalog/admin/inc.... 
+        $domain = ENABLE_SSL ? HTTPS_SERVER : HTTP_SERVER;
+
+        $product->setProductUrl($domain . DIR_WS_CATALOG . "product_info.php" . '?products_id=' . $productValues["products_id"]);
         $product->setManufacturer($productValues['manufacturers_name']);
 
         $productValues['products_description'] = PricerunnerSDK::getXmlReadyString($productValues['products_description']);
         $product->setDescription($productValues['products_description']);
-        $product->setImageUrl((ENABLE_SSL ? HTTPS_SERVER : HTTP_SERVER) . DIR_WS_CATALOG . DIR_WS_IMAGES . $productValues['image']);
+        $product->setImageUrl($domain . DIR_WS_CATALOG . DIR_WS_IMAGES . $productValues['image']);
 
         $product->setStockStatus('Out of Stock');
         if (!empty($productValues['stock'])) {

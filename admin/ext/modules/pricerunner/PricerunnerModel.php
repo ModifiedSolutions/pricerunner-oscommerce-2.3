@@ -46,8 +46,9 @@ class PricerunnerModel
                 OR cfg.configuration_key = 'MODULE_SHIPPING_FLAT_COST'
                 LIMIT 2";
         $shipping = tep_db_query($sql);
+        $shipping = tep_db_fetch_array($shipping);
 
-        $result = [];
+        $result = array();
         foreach ($shipping as $value) {
             $key = $value['configuration_key'];
             $result[$key] = $value['configuration_value'];
@@ -74,14 +75,14 @@ class PricerunnerModel
             ORDER BY categories_id ASC";
         $resource = tep_db_query($query);
 
-        $categories = [];
+        $categories = array();
         while ($value = tep_db_fetch_array($resource)) {
             $key = $value['categories_id'];
-            $categories[$key] = [
+            $categories[$key] = array(
                 'parent_id'     => $value['parent_id'],
                 'category_id'   => $value['categories_id'],
                 'category_name' => $value['categories_name']
-            ];
+            );
         }
 
         return $this->sortCategories($categories);
@@ -184,13 +185,12 @@ class PricerunnerModel
      */
     public function setupConfigurations()
     {
-        echo 'SETUP!!!!';
-        $entries = [
+        $entries = array(
             'activated'  => 0,
             'phone'      => '',
             'email'      => STORE_OWNER_EMAIL_ADDRESS,
             'hash'       => PricerunnerSDK::getRandomString()
-        ];
+        );
 
         foreach ($entries as $key => $value) {
             $insertQuery = "INSERT INTO " . TABLE_CONFIGURATION . ' ' .
@@ -209,7 +209,7 @@ class PricerunnerModel
      */
     private function sortCategories($categories)
     {
-        $sortedCategories = [];
+        $sortedCategories = array();
         foreach ($categories as $id => $category) {
 
             if ($category['parent_id'] == 0) {
@@ -272,11 +272,11 @@ class PricerunnerModel
      */
     private function setPluginActivation($phone, $email)
     {
-        $entries = [
+        $entries = array(
             'phone'     => $phone,
             'email'     => $email,
             'activated' => 1
-        ];
+        );
 
         foreach ($entries as $key => $value) {
             $query = "UPDATE " . TABLE_CONFIGURATION . ' cfg ' .

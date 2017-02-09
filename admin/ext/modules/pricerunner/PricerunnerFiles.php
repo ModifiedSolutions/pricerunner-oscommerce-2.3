@@ -18,6 +18,6 @@ define('PRICERUNNER_PLUGIN_ROOT_DIR', dirname(__FILE__));
 
 require_once(PRICERUNNER_PLUGIN_ROOT_DIR . '/PricerunnerController.php');
 require_once(PRICERUNNER_PLUGIN_ROOT_DIR . '/PricerunnerModel.php');
-require_once(PRICERUNNER_PLUGIN_ROOT_DIR . '/PricerunnerSDK/files.php');
+require_once(PRICERUNNER_PLUGIN_ROOT_DIR . '/pricerunner-php-sdk/src/files.php');
 require_once(PRICERUNNER_PLUGIN_ROOT_DIR . '/CustomValidator/osCommerceProductValidator.php');
 require_once(PRICERUNNER_PLUGIN_ROOT_DIR . '/CustomValidator/osCommerceProductCollectionValidator.php');

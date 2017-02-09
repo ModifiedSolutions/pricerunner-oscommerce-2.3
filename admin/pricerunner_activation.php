@@ -10,15 +10,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  **/
 
+define('PRICRUNNER_OFFICIAL_PLUGIN_VERSION', 'oscommerce-2.3-v1.0.4');
+
 require_once(__DIR__ . '/ext/modules/pricerunner/PricerunnerFiles.php');
 require_once(__DIR__ . '/includes/application_top.php');
+
 require_once(DIR_WS_INCLUDES . 'template_top.php');
 
 $controller = new PricerunnerController();
 
-if (isset($_POST) && $_POST['action'] == 'register') {
+$action = '';
+if (isset($_POST['action'])) {
+    $action = $_POST['action'];
+}
+
+if ($action == 'register') {
     $response = $controller->handleRegistrationData();
-} elseif (isset($_POST) && $_POST['action'] == 'reset') {
+} elseif ($action == 'reset') {
     $response = $controller->handlePluginReset();
 }
 
@@ -28,7 +36,6 @@ $hash   = $config['pricerunner_feed_hash'];
 $phone  = $config['pricerunner_feed_phone'];
 $email  = $config['pricerunner_feed_email'];
 $active = $config['pricerunner_feed_activated'];
-$feed   = (ENABLE_SSL ? HTTPS_SERVER : HTTP_SERVER) . DIR_WS_ADMIN . 'pricerunner_feed.php?hash=' . $hash;
 
 $domain = ENABLE_SSL_CATALOG ? HTTPS_CATALOG_SERVER : HTTP_CATALOG_SERVER;
 $feed   = $domain . DIR_WS_ADMIN .'pricerunner_feed.php?hash='. $hash;
@@ -56,7 +63,6 @@ $feed   = $domain . DIR_WS_ADMIN .'pricerunner_feed.php?hash='. $hash;
         }
 
         .pricerunner-input-label {
-            font-size: 1.2em;
             font-weight: bold;
             color: #727272;
             margin-left: 30px;
@@ -78,7 +84,6 @@ $feed   = $domain . DIR_WS_ADMIN .'pricerunner_feed.php?hash='. $hash;
 
         .pricerunner-button {
             font-weight: bold;
-            font-size: 1.2em;
             border-radius: 5px;
             border: 1px solid #c5dbec;
             background: #dfeffc 50% 50% repeat-x;
